@@ -1,13 +1,12 @@
 describe('collapse directive', function () {
 
-  var scope, $compile, $timeout, $transition;
+  var scope, $compile, $timeout;
 
   beforeEach(module('ui.bootstrap.collapse'));
-  beforeEach(inject(function(_$rootScope_, _$compile_, _$timeout_, _$transition_) {
+  beforeEach(inject(function(_$rootScope_, _$compile_, _$timeout_) {
     scope = _$rootScope_;
     $compile = _$compile_;
     $timeout = _$timeout_;
-    $transition = _$transition_;
   }));
 
   var element;
@@ -21,11 +20,13 @@ describe('collapse directive', function () {
     element.remove();
   });
 
+  // ngAnimate handles skipping of initial animations through
+  // https://github.com/angular/angular.js/commit/cc5846073e57ef190182026d7e5a8e2770d9b770
   it('should be hidden on initialization if isCollapsed = true without transition', function() {
     scope.isCollapsed = true;
     scope.$digest();
     //No animation timeout here
-    expect(element.height()).toBe(0);
+    expect(element).not.toHaveClass('in');
   });
 
   it('should collapse if isCollapsed = true with animation on subsequent use', function() {
@@ -34,6 +35,7 @@ describe('collapse directive', function () {
     scope.isCollapsed = true;
     scope.$digest();
     $timeout.flush();
+    expect(element).not.toHaveClass('in');
     expect(element.height()).toBe(0);
   });
 
@@ -41,7 +43,7 @@ describe('collapse directive', function () {
     scope.isCollapsed = false;
     scope.$digest();
     //No animation timeout here
-    expect(element.height()).not.toBe(0);
+    expect(element).toHaveClass('in');
   });
 
   it('should expand if isCollapsed = false with animation on subsequent use', function() {
@@ -52,6 +54,7 @@ describe('collapse directive', function () {
     scope.isCollapsed = false;
     scope.$digest();
     $timeout.flush();
+    expect(element).toHaveClass('in');
     expect(element.height()).not.toBe(0);
   });
 
@@ -66,10 +69,6 @@ describe('collapse directive', function () {
     scope.$digest();
     $timeout.flush();
     expect(element.height()).toBe(0);
-    if ($transition.transitionEndEventName) {
-      element.triggerHandler($transition.transitionEndEventName);
-      expect(element.height()).toBe(0);
-    }
   });
 
   describe('dynamic content', function() {
