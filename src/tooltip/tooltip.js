@@ -97,11 +97,11 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
       var endSym = $interpolate.endSymbol();
       var template =
         '<div '+ directiveName +'-popup '+
-          'title="'+startSym+'tt_title'+endSym+'" '+
-          'content="'+startSym+'tt_content'+endSym+'" '+
-          'placement="'+startSym+'tt_placement'+endSym+'" '+
-          'animation="tt_animation" '+
-          'is-open="tt_isOpen"'+
+          'title="'+startSym+'title'+endSym+'" '+
+          'content="'+startSym+'content'+endSym+'" '+
+          'placement="'+startSym+'placement'+endSym+'" '+
+          'animation="animation" '+
+          'is-open="isOpen"'+
           '>'+
         '</div>';
 
@@ -121,7 +121,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
 
             var positionTooltip = function () {
 
-              var ttPosition = $position.positionElements(element, tooltip, scope.tt_placement, appendToBody);
+              var ttPosition = $position.positionElements(element, tooltip, scope.placement, appendToBody);
               ttPosition.top += 'px';
               ttPosition.left += 'px';
 
@@ -131,10 +131,10 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
 
             // By default, the tooltip is not open.
             // TODO add ability to start tooltip opened
-            scope.tt_isOpen = false;
+            scope.isOpen = false;
 
             function toggleTooltipBind () {
-              if ( ! scope.tt_isOpen ) {
+              if ( ! scope.isOpen ) {
                 showTooltipBind();
               } else {
                 hideTooltipBind();
@@ -146,8 +146,8 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               if(hasEnableExp && !scope.$eval(attrs[prefix+'Enable'])) {
                 return;
               }
-              if ( scope.tt_popupDelay ) {
-                popupTimeout = $timeout( show, scope.tt_popupDelay, false );
+              if ( scope.popupDelay ) {
+                popupTimeout = $timeout( show, scope.popupDelay, false );
                 popupTimeout.then(function(reposition){reposition();});
               } else {
                 show()();
@@ -165,7 +165,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
 
 
               // Don't show empty tooltips.
-              if ( ! scope.tt_content ) {
+              if ( ! scope.content ) {
                 return angular.noop;
               }
 
@@ -191,7 +191,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               positionTooltip();
 
               // And show the tooltip.
-              scope.tt_isOpen = true;
+              scope.isOpen = true;
               scope.$digest(); // digest required as $apply is not called
 
               // Return positioning function as promise callback for correct
@@ -202,7 +202,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             // Hide the tooltip popup element.
             function hide() {
               // First things first: we don't show it anymore.
-              scope.tt_isOpen = false;
+              scope.isOpen = false;
 
               //if tooltip is going to be shown after delay, we must cancel this
               $timeout.cancel( popupTimeout );
@@ -210,7 +210,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               // And now we remove it from the DOM. However, if we have animation, we 
               // need to wait for it to expire beforehand.
               // FIXME: this is a placeholder for a port of the transitions library.
-              if ( scope.tt_animation ) {
+              if ( scope.animation ) {
                 transitionTimeout = $timeout(removeTooltip, 500);
               } else {
                 removeTooltip();
@@ -239,24 +239,24 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
              * Observe the relevant attributes.
              */
             attrs.$observe( type, function ( val ) {
-              scope.tt_content = val;
+              scope.content = val;
 
-              if (!val && scope.tt_isOpen ) {
+              if (!val && scope.isOpen ) {
                 hide();
               }
             });
 
             attrs.$observe( prefix+'Title', function ( val ) {
-              scope.tt_title = val;
+              scope.title = val;
             });
 
             attrs.$observe( prefix+'Placement', function ( val ) {
-              scope.tt_placement = angular.isDefined( val ) ? val : options.placement;
+              scope.placement = angular.isDefined( val ) ? val : options.placement;
             });
 
             attrs.$observe( prefix+'PopupDelay', function ( val ) {
               var delay = parseInt( val, 10 );
-              scope.tt_popupDelay = ! isNaN(delay) ? delay : options.popupDelay;
+              scope.popupDelay = ! isNaN(delay) ? delay : options.popupDelay;
             });
 
             var unregisterTriggers = function () {
@@ -278,7 +278,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             });
 
             var animation = scope.$eval(attrs[prefix + 'Animation']);
-            scope.tt_animation = angular.isDefined(animation) ? !!animation : options.animation;
+            scope.animation = angular.isDefined(animation) ? !!animation : options.animation;
 
             attrs.$observe( prefix+'AppendToBody', function ( val ) {
               appendToBody = angular.isDefined( val ) ? $parse( val )( scope ) : appendToBody;
@@ -289,7 +289,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             // by the change.
             if ( appendToBody ) {
               scope.$on('$locationChangeSuccess', function closeTooltipOnLocationChangeSuccess () {
-              if ( scope.tt_isOpen ) {
+              if ( scope.isOpen ) {
                 hide();
               }
             });
