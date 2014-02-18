@@ -146,6 +146,9 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               if(hasEnableExp && !scope.$eval(attrs[prefix+'Enable'])) {
                 return;
               }
+
+              prepareTooltip();
+
               if ( scope.tt_popupDelay ) {
                 popupTimeout = $timeout( show, scope.tt_popupDelay, false );
                 popupTimeout.then(function(reposition){reposition();});
@@ -163,6 +166,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             // Show the tooltip popup element.
             function show() {
 
+              prepareTooltip();
 
               // Don't show empty tooltips.
               if ( ! scope.tt_content ) {
@@ -235,6 +239,11 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               }
             }
 
+            function prepareTooltip() {
+              prepPlacement();
+              prepPopupDelay();
+            }
+
             /**
              * Observe the relevant attributes.
              */
@@ -250,14 +259,16 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               scope.tt_title = val;
             });
 
-            attrs.$observe( prefix+'Placement', function ( val ) {
+            function prepPlacement() {
+              var val = attrs[ prefix + 'Placement' ];
               scope.tt_placement = angular.isDefined( val ) ? val : options.placement;
-            });
+            }
 
-            attrs.$observe( prefix+'PopupDelay', function ( val ) {
+            function prepPopupDelay() {
+              var val = attrs[ prefix + 'PopupDelay' ];
               var delay = parseInt( val, 10 );
               scope.tt_popupDelay = ! isNaN(delay) ? delay : options.popupDelay;
-            });
+            }
 
             var unregisterTriggers = function () {
               element.unbind(triggers.show, showTooltipBind);
